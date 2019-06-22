@@ -1,0 +1,68 @@
+clc
+clear all
+close all
+
+%% change features number from n to n1
+n1=2;
+
+AllData=[  5      10   10
+     12     14   23
+     11     10   25
+     12     13   15
+     24     28    15
+     23     26    11
+     29     25    6
+     44     4    6
+     48     7    4
+     40     8    16];
+ [m,n]=size(AllData)
+ %% FLDA 3 features->2  features
+ClassLabel=[1;1;1;1;3;3;3;2;2;2];
+NumberOfClass=3;
+
+DataOfClass1=AllData(find(ClassLabel==1),:);
+DataOfClass2=AllData(find(ClassLabel==2),:);
+DataOfClass3=AllData(find(ClassLabel==3),:);
+
+Sw=cov(DataOfClass1)+cov(DataOfClass2)+cov(DataOfClass3);
+St=cov(AllData);
+Sb=St-Sw;
+
+a=inv(Sw)*Sb;
+[EigenVectors,EigenValues]=eig(a)
+EigenValues=diag(EigenValues);
+[vals,indx]=sort(EigenValues, 'descend' );
+BestEigenVectors1=EigenVectors(:,indx(1:n1))
+newData1=AllData*BestEigenVectors1
+
+%% PCA 3 features->2  features
+a=cov(AllData);
+[EigenVectors,EigenValues]=eig(a)
+EigenValues=diag(EigenValues);
+[vals,indx]=sort(EigenValues, 'descend' );
+BestEigenVectors2=EigenVectors(:,indx(1:n1))
+newData2=AllData*BestEigenVectors2
+
+%% plot
+DataOfClass1=newData1(find(ClassLabel==1),:);
+DataOfClass2=newData1(find(ClassLabel==2),:);
+DataOfClass3=newData1(find(ClassLabel==3),:);
+plot(DataOfClass1(:,1),DataOfClass1(:,2),'r*');
+hold on
+plot(DataOfClass2(:,1),DataOfClass2(:,2),'go');
+plot(DataOfClass3(:,1),DataOfClass3(:,2),'bs');
+legend('class 1','class 2','class 3');
+title('FLDA');
+
+figure
+plot(DataOfClass1(:,1),DataOfClass1(:,2),'r*');
+hold on
+plot(DataOfClass2(:,1),DataOfClass2(:,2),'go');
+plot(DataOfClass3(:,1),DataOfClass3(:,2),'bs');
+plot(DataOfClass1,'r*');
+hold on
+plot(DataOfClass2,'s');
+plot(DataOfClass3,'go');
+legend('class 1','class 2','class 3');
+title('PCA');
+
